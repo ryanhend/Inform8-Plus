@@ -1,0 +1,115 @@
+/* Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+ */
+.ui-tabs-nav a.ui-tabs-close {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    cursor: pointer !important;
+    opacity: 0.4;
+    -moz-opacity: 0.4;
+    filter: alpha(opacity=40);
+}
+
+.ui-tabs-nav .ui-tabs-selected a.ui-tabs-close {
+    z-index: 2;
+    opacity: 0.7;
+    -moz-opacity: 0.7;
+    filter: alpha(opacity=70);
+}
+
+.ui-tabs-nav a.ui-tabs-close {
+    background-image:url(../images/smtb/cross8x8.png);
+    height: 8px ;
+    width: 8px ;
+    padding: 0 !important;
+}
+
+.ui-tabs-nav a.ui-tabs-close:hover {
+    opacity: 1.0;
+    -moz-opacity: 1.0;
+    filter: alpha(opacity=100);
+}
+
+.ui-tabs-nav a.ui-tabs-close span {
+    display: none ;
+}
+        
+        
+				    		
+.ui-tabs-nav {
+    background-image: none;
+		background-color: #E3F0F7;
+		border-left:none; 
+		border-right:none;
+		border-top:none;  
+}
+		
+.ui-tabs { padding: 0px; border:none;}
+.ui-tabs .ui-tabs-nav { padding: 2px 2px 0; }
+.ui-tabs .ui-tabs-nav li {padding-left: 8px; padding-right: 8px;}
+.ui-tabs .ui-tabs-nav li a {padding: 2px 12px 2px 2px;}
+.ui-tabs .ui-tabs-panel {padding: 12px;}
+
+.ui-widget {
+     font-family: arial, serif;
+}
+
+.ui-jqgrid-view .ui-userdata {
+	background: none;
+}
+
+.ui-jqgrid-view .ui-userdata {
+	background: none;
+}
+
+div .ui-jqgrid-titlebar {
+	background: none;
+	background-color: #00AEEF;
+}
+
+div .ui-jqgrid .ui-jqgrid-titlebar {
+	padding:4px;
+}
+
+div .ui-jqgrid-titlebar .ui-jqgrid-title{
+	color: #FFFFFF;
+}
+
+div .ui-jqgrid {
+	-moz-border-radius: 0px;
+}
+
+div .goog-toolbar {
+	border-bottom: 1px solid #AAAAAA;
+}
+
+.ui-jqgrid-view .ui-corner-tl {
+	-moz-border-radius-topleft: 0;
+}
+
+.ui-jqgrid-view .ui-corner-tr {
+	-moz-border-radius-topright: 0;
+}
+
+.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
+	font-size: 11px;
+	font-family: Arial,sans-serif;
+}
+
+.ui-tabs-nav .ui-tabs-selected {
+	font-weight: bold;
+}
+
+
+.ui-timepicker input {
+	border: none;
+	width: 1.5em;	
+}
+
+
+	

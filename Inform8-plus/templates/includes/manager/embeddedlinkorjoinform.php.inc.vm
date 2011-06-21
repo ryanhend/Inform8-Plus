@@ -1,0 +1,38 @@
+#* 
+ Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+*#
+## pop up dialog to create a new embedded record
+<div id="<?php echo $pageid ?>-add${fk.childTable.name}Dialog" style="display:none;" title="Add <?php echo WebContext::getLanguage()->get('Tbl_${fk.otherConnectingTable().name}'); ?>">
+
+	<script>
+			buildEmbeddedLinkForm('Link to existing <?php echo WebContext::getLanguage()->get('Tbl_${fk.otherConnectingTable().name}'); ?>',
+				window.I8.td['${table.name}'],
+				$('#<?php echo $pageid ?>-add${fk.childTable.name}Dialog'),
+				'<?php echo $embeddedlinkformid; ?>',
+				window.I8.td['${fk.childTable.name}'],
+				window.I8.td['${fk.childTable.name}'].members['${fk.otherField}'],
+				'<?php echo $obj->get${table.primaryKey.name}(); ?>',
+				'<?php echo $currfkGridId ?>');
+
+      $('#<?php echo $pageid ?>-add${fk.childTable.name}Dialog').append($('<br />'));
+
+		  buildEmbeddedCreateForm('New <?php echo WebContext::getLanguage()->get('Tbl_${fk.otherConnectingTable().name}'); ?>',
+				window.I8.td['${table.name}'],
+				$('#<?php echo $pageid ?>-add${fk.childTable.name}Dialog'),
+				'<?php echo $embeddedformid; ?>',
+				window.I8.td['${fk.childTable.name}'],
+				window.I8.td['${fk.otherConnectingTable().name}'],
+				null,
+				'<?php echo $obj->get${table.primaryKey.name}(); ?>',
+				'<?php echo $currfkGridId ?>');
+		</script>
+	</div>
+	
+	<script>
+		$('#<?php echo $pageid ?>-add${fk.childTable.name}Dialog').dialog({autoOpen: false, minHeight:300, minWidth:500, height:450, width:600});
+  </script>

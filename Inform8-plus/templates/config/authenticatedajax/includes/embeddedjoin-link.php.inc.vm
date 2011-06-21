@@ -1,0 +1,40 @@
+#* 
+ Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+*#
+
+#* 
+  Link to existing record in other table via the join table
+  Typically used in a Many to Many relationship.
+*#
+function new${fk.childTable.name}Link() {
+  logToFile("new${fk.childTable.name}Link start");
+
+  $otherDao = new ${fk.otherConnectingTable().name}Dao();
+  $otherBo = $otherDao->getWithId(Request::getSafeGetOrPost('${fk.otherConnectingTableField().name}'));
+  
+  // connect it to this table
+  $connectingDao = new ${fk.childTable.name}Dao();
+  $connectingObj = new ${fk.childTable.name}();
+  // id of this object we are embedding it in
+  $connectingObj->set${fk.otherField}(Request::getOrPost('embeddedBaseObjectId'));
+  // the newly created object
+  $connectingObj->set${fk.otherConnectingTableField().name}($otherBo->getPk());
+  
+  logToFile("createEmbedded${fk.childTable.name} end");
+  $tempobj = $connectingDao->create($connectingObj);
+
+  $res = RequestResult::newFromDbObject($tempobj);
+  if ($res->isPassed()) {
+    $res->displayMessage = WebContext::getLanguage()->get('Tbl_${fk.childTable.name}__linked');
+  }else {
+    $res->displayMessage = WebContext::getLanguage()->get('Tbl_${fk.childTable.name}__linkFailed');
+  }
+  
+  logToFile("new${fk.childTable.name}Link end");
+  return $res;
+}

@@ -1,0 +1,127 @@
+<?php 
+/* Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+ */
+?><?php
+	$pageid = time();	
+	$calendarId = $pageid . '-calendar';
+	$calendarSelectionId = $pageid . '-calendar-selection';
+?>
+<table>
+  <tbody>
+    <td id="cal_nav" valign="top">
+      <style>
+      #foreach( $table in $tables )
+        #if ($table.settings.hasLabel('CALENDAR'))
+          #if ($table.settings.hasProperty('calendar-css'))
+            .cal-${table.name},
+            .fc-agenda .cal-${table.name} .fc-event-time,
+            .cal-${table.name} a, jack-calendarlist-calendar cal-${table.name} {
+                $table.settings.getProperty('calendar-css', '');
+            }
+          #end
+        #end
+      #end
+      </style>
+
+      <div id="calendar_list" class="jack-calendar-nav">
+        <div id="jack_calendar_list">
+          <div class="jack-calendar-mycalendars"><?php echo WebContext::getLanguage()->get('calendarList'); ?></div>
+            <form>
+              <fieldset id="<?php echo $calendarSelectionId; ?>">
+                #foreach( $table in $tables )
+                  #if ($table.settings.hasLabel('CALENDAR'))
+                    <div class="jack-calendarlist-calendar cal-${table.name}">
+                      <input type="checkbox" name="${table.name}" checked id="cal-selection-${table.name}"> <?php echo WebContext::getLanguage()->get('Tbl_${table.name}'); ?> 
+                    </div>
+                  #end
+                #end
+              </fieldset>
+            </form>
+            <script type='text/javascript'>
+              var updateCalendarFunction = function() {
+                var tables = "";
+                $('#<?php echo $calendarSelectionId; ?> input[type=checkbox]')
+                  .each(function() {
+                    if ($(this).is(':checked')) {
+                      if (tables.length>0) {
+                        tables += ",";
+                      }
+                      tables += $(this).attr('name');
+                    } 
+                  });
+                
+                
+                $('#<?php echo $calendarId?>').fullCalendar(
+                 'removeEventSource', window.I8.currentCalendarSource
+                );                
+                
+                window.I8.currentCalendarSource = "jsoncalendarrest.php?object=" + tables;
+                
+                $('#<?php echo $calendarId?>').fullCalendar(
+                  'addEventSource', window.I8.currentCalendarSource
+                );
+                
+              }
+          
+            ## Handlers to refreh the calendar on selection change
+            #foreach( $table in $tables )
+              #if ($table.settings.hasLabel('CALENDAR'))
+                $('#cal-selection-${table.name}').click(updateCalendarFunction);
+              #end
+            #end
+          </script>          
+        </div>
+        
+        <div class="jack-calendarlist-refresh">
+          <a onclick="$('#<?php echo $calendarId?>').fullCalendar( 'refetchEvents' ); return false;" href="#"><?php echo WebContext::getLanguage()->get('calendarRefresh'); ?></a>
+        </div>        
+        
+      </div>
+    </td>
+    
+    <td style="width: 100%;" valign="top">
+      <div id='<?php echo $calendarId ?>' class="calendar" style="float:left; width: 100%;"></div>  
+    </td>
+  </tbody>
+</table>
+
+<script type='text/javascript'>
+
+	$(document).ready(function() {
+		
+		$('#<?php echo $calendarId?>').fullCalendar({
+			header: {
+				left: 'prev,next today',
+				center: 'title',
+				right: 'month,agendaWeek,agendaDay'
+			},
+			editable: true,
+			theme: true,
+			events: "jsoncalendarrest.php?object=ALL",
+			eventDrop: function(event, delta) {
+				alert('Moving dates not supported yet.');
+			},
+			eventRender: function(event, element) {
+				if('description' in event && event.description != "" && event.description != "<br>") {
+          element.attr('title', event.description);
+          element.hoverbox();
+				}
+      },
+      loading: function(isLoading) {
+        if (isLoading) {
+          displayTempMessage('<?php echo WebContext::getLanguage()->get('calendarRefreshing'); ?>', false);
+        }else {
+          clearMessage();
+        }   
+      },
+			height:500
+		});
+	});
+	
+  window.I8.currentCalendarSource = "jsoncalendarrest.php?object=ALL";
+</script>

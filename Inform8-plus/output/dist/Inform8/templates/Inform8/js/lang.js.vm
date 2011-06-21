@@ -1,0 +1,20 @@
+#* 
+ Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+*#
+window.I8.langs = new Object();
+
+#foreach( $langKey in ${langProps.keySet()} )
+	
+	
+	window.I8.langs['${langKey}'] = new Object();
+	#set($dalang = ${langProps.get($langKey)})
+	#foreach($langEntryKey in ${dalang.keySet()} )
+		window.I8.langs['${langKey}']['${langEntryKey}'] = '${dalang.get($langEntryKey)}';
+	#end
+#end
+

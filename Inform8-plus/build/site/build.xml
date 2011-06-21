@@ -1,0 +1,110 @@
+<project name="Your Site" default="localDeploy" basedir=".">
+    
+	<property file="build.properties"/>
+	
+    <target name="localDeploy" >
+        <copy todir="temp" overwrite="true">
+            <fileset dir="site/" includes="**">
+            </fileset>
+        </copy>
+	    <ant target="shrinkJS" />
+        <ant target="concatCSS" />
+		
+		<copy todir="${localFolder}" overwrite="true">
+            <fileset dir="temp/" includes="**">
+            </fileset>
+        </copy>
+        <move file="${localFolder}/config/includes/db/db.conn.local.php" 
+            tofile="${localFolder}/config/includes/db/db.conn.prod.php"></move>		
+    </target>
+    
+	
+	
+ <target name="concatJS">
+    <concat destfile="temp/js/i8.js">
+      <fileset dir="temp/js/">
+        <include name="admin*.js" />
+        <include name="ui*.js" />
+        <include name="data.js" />
+        <include name="extensions.js" />
+        <include name="time.js" />
+      </fileset>
+    </concat>
+    <delete>
+      <fileset dir="temp/js/">
+        <include name="admin*.js" />
+        <include name="ui*.js" />
+        <include name="data.js" />
+        <include name="extensions.js" />
+        <include name="time.js" />
+      </fileset>
+    </delete>
+  </target>
+
+  <target name="concatCSS">
+    <concat destfile="temp/css/i8.css">
+      <fileset dir="temp/css/">
+        <include name="admin*.css" />
+      </fileset>
+    </concat>
+    <delete>
+      <fileset dir="temp/css/">
+        <include name="admin*.jcss" />
+      </fileset>
+    </delete>
+  </target>
+
+  <target name="shrinkJS" depends="concatJS">
+    <apply executable="java" parallel="false" verbose="true" failonerror="true" dest="temp/js/">
+      <fileset dir="temp/js/">
+        <include name="i8.js" />
+      </fileset>
+      <arg line="-jar" />
+      <arg path="${googleClosure.jar}" />
+      <arg value="--warning_level" />
+      <arg value="QUIET" />
+      <arg value="--js_output_file" />
+      <targetfile />
+      <arg value="--js" />
+      <mapper type="glob" from="i8.js" to="i8.min.js" />
+    </apply>
+    <apply executable="java" parallel="false" verbose="true" failonerror="true" dest="temp/js/">
+      <fileset dir="temp/js/">
+        <include name="lang.js" />
+      </fileset>
+      <arg line="-jar" />
+      <arg path="${googleClosure.jar}" />
+      <arg value="--warning_level" />
+      <arg value="QUIET" />
+      <arg value="--js_output_file" />
+      <targetfile />
+      <arg value="--js" />
+      <mapper type="glob" from="lang.js" to="lang.min.js" />
+    </apply>
+    <echo message="jack js lib minified." />
+    <delete>
+      <fileset dir="temp/js/">
+        <include name="i8.js" />
+        <include name="lang.js" />
+      </fileset>
+    </delete>
+
+  </target>	
+	
+	
+	
+    <target name="prodDeploy">
+        <zip destfile="site.zip">
+            <fileset dir="site/" includes="**">
+            </fileset>
+        </zip>
+    	<echo message="${pwd}" />
+        <ftp server="${prodServer}" passive="true" userid="${prodServerUserName}" password="${pwd}" remotedir="${prodServerFolder}" >
+            <fileset dir="." includes="site.zip">
+            </fileset>
+        </ftp>
+        <sshexec host="${prodServer}" username="${prodServerUserName}" password="${pwd}" trust="true" command="unzip -o ${prodUnzipFolder}site.zip -d ${prodUnzipFolder}"/>
+        <sshexec host="${prodServer}" username="${prodServerUserName}" password="${pwd}" trust="true" command="rm ${prodUnzipFolder}site.zip" />
+    </target>
+	
+</project>

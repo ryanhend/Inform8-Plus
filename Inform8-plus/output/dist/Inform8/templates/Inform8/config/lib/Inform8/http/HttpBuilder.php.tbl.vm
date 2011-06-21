@@ -1,0 +1,29 @@
+<?php 
+/* Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+ */
+?><?php 
+class ${table.name}HttpBuilder { 
+
+  /**
+    * Loads the members from the http request just as the members name.
+    * Loads from GET or POST. Tries POST variables first.
+    *
+    * TODO: should have table prefix on members. 
+    */
+  function loadFromHttpRequest($obj) {
+    #foreach( $col in ${table.columns} )
+		#if($col.settings.hasLabel('PASSWORD'))
+	 		$obj->set${col.name}(md5(Request::getOrPost('$col.name')));
+	 	#else
+			$obj->set${col.name}(Request::getSafeGetOrPost('$col.name'));
+	 	#end	
+	#end  
+  }
+
+}    
+?>

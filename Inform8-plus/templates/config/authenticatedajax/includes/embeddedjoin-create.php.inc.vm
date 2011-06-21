@@ -1,0 +1,69 @@
+#* 
+ Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+*#
+#* 
+  Create on other table and link via a join table
+  Typically used in a Many to Many relationship.
+*#
+function createEmbedded${fk.childTable.name}() {
+  logToFile("createEmbedded${fk.childTable.name} start");
+  $otherDao = new ${fk.otherConnectingTable().name}Dao();
+  $otherBo = new ${fk.otherConnectingTable().name}();
+  logToFile("createEmbedded${fk.childTable.name} dao bo");
+  
+  //create other side of join table
+  $otherBo->loadFromHttpRequest();
+  logToFile("createEmbedded${fk.childTable.name}loadFromHttpRequest");
+  $otherBo = $otherDao->create($otherBo);
+  logToFile("createEmbedded${fk.childTable.name} create other");
+  
+  #if($fk.childTable.columnsWithLabel('FILE').size() > 0)
+    $storageSettingsDao = new StorageDao();
+    $allSettings = $storageSettingsDao->getAll();
+    $settings = $allSettings[0];
+    $storageFolder = $settings->getStorageFolder();
+  #end
+  
+	#foreach( $col in $fk.childTable.columns )
+    #if($col.settings.hasLabel('FILE'))
+      if (isset($_FILES['${col.name}']) 
+        && $_FILES['${col.name}']['name'] != null
+        && $_FILES['${col.name}']['name'] != '') {
+        
+        $finalStorageFolder = $storageFolder . '/${fk.childTable.name}/' . $otherBo->getPk();
+      
+        // create the directory for the table and primary key if none exists
+        mkdir($finalStorageFolder, 0755, true);
+        
+        move_uploaded_file($_FILES['${col.name}']['tmp_name'], $finalStorageFolder . '/' . $_FILES['${col.name}']['name'] );
+        $otherBo->set${col.name}('${fk.childTable.name}/' . $otherBo->getPk() . '/' . $_FILES['${col.name}']['name']);
+      }
+    #end    
+  #end
+  $otherBo = $otherDao->save($otherBo);  
+  
+  // connect it to this table
+  $connectingDao = new ${fk.childTable.name}Dao();
+  $connectingObj = new ${fk.childTable.name}();
+  // id of this object we are embedding it in
+  $connectingObj->set${fk.otherField}(Request::getOrPost('embeddedBaseObjectId'));
+  // the newly created object
+  $connectingObj->set${fk.otherConnectingTableField().name}($otherBo->getPk());
+  
+  logToFile("createEmbedded${fk.childTable.name} end");
+  $tempobj = $connectingDao->create($connectingObj);
+
+  $res = RequestResult::newFromDbObject($tempobj);
+  if ($res->isPassed()) {
+    $res->displayMessage = WebContext::getLanguage()->get('Tbl_${fk.childTable.name}__created');
+  }else {
+    $res->displayMessage = WebContext::getLanguage()->get('Tbl_${fk.childTable.name}__createFailed');
+  } 
+  
+  return $res;
+}

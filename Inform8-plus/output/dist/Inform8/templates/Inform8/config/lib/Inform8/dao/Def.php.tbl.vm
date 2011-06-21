@@ -1,0 +1,38 @@
+<?php 
+/* Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+ */
+?><?php 
+class ${table.name}Definition { 
+
+  private ${ds}table;
+  
+  function ${table.name}Definition() {
+	#set($col = ${table.primaryKey})
+	$this->table = new Table('${table.name}', 
+		#parse('config/lib/inform8/dao/tablemember.php.inc.vm'),
+		#if(${table.settings.hasProperty('fkMember')}) #set($cname = ${table.settings.getProperty('fkMember', '')}) #set($col = ${table.getColumn($cname)}) #else #set($col = ${table.primaryKey}) #end #parse('config/lib/inform8/dao/tablemember.php.inc.vm') , #parse('config/lib/inform8/dao/tabledisplaysettings.php.inc.vm'));
+	#foreach( $col in $table.columns )
+		$this->table->addMember(#parse('config/lib/inform8/dao/tablemember.php.inc.vm'));
+	#end
+  }
+  
+  function getFieldValue($obj, $field) {
+	return call_user_func(array($obj, 'get'.$field.'()'));
+  }
+  
+  function getTable() {
+	return $this->table;
+  }
+  
+	
+	function toJson() {
+		return json_encode($this->table);
+	}
+	
+}	 
+?>

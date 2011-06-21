@@ -1,0 +1,86 @@
+#* 
+ Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+*#<?php 
+  
+  class ${table.name}ExcelBuilder {
+
+    function getColumnCount() {
+		return ${table.columns.length};
+	}
+  
+    function generateHeader($row, $objPHPExcel, $lang) {
+		$column=0;
+		$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($column++, $row, WebContext::getLanguage()->get('Tbl_${table.name}_${table.primaryKey.name}'));
+		#foreach( $col in $table.columns )
+			$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($column++, $row, WebContext::getLanguage()->get('Tbl_${table.name}_${col.name}'));
+		#end
+	}
+	
+    function generateExpandedHeader($row, $column, $objPHPExcel, $lang) {
+		$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($column++, $row, WebContext::getLanguage()->get('Tbl_${table.name}_${table.primaryKey.name}'));
+		#foreach( $col in $table.columns )
+			#if ($col.masterForeignKey)
+				$reqBuilder = "${col.masterForeignKey.otherTable.name}ExcelBuilder";
+				$builder = new $reqBuilder();
+				$column = $builder->generateExpandedHeader($row, $column, $objPHPExcel, WebContext::getLanguage());
+			#else
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($column++, $row, WebContext::getLanguage()->get('Tbl_${table.name}_${col.name}'));
+			#end
+		#end
+		return $column;
+	}	
+  
+	function generateRow($obj, $row, $objPHPExcel) {
+		$column=0;
+		$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($column++, $row, $obj->get${table.primaryKey.name}());
+		#foreach( $col in $table.columns )
+			$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($column++, $row, $obj->get${col.name}());
+		#end
+	}
+	
+	// return new col index
+	function generateExpandedRow($obj, $row, $column, $objPHPExcel) {
+		Inform8Context::getLogger()->log(BaseLogger::$DEBUG, "generateExpandedRow  ${table.name}");
+		$validObj = ${table.name}ExcelBuilder::isValid($obj);
+		if ($validObj) {
+			$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($column++, $row, $obj->get${table.primaryKey.name}());
+		}else {
+			$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($column++, $row, '');
+		}		
+		#foreach( $col in $table.columns )
+			#if ($col.masterForeignKey)
+				// new excel builder + generate for object
+				$reqBuilder = "${col.masterForeignKey.otherTable.name}ExcelBuilder";
+				$builder = new $reqBuilder();
+				if ($validObj) {
+					$column = $builder->generateExpandedRow($obj->get${col.name}Object(), $row, $column, $objPHPExcel);
+					//$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($column++, $row, $obj->get${col.name}());
+				}else {
+					$column = $builder->generateExpandedRow(NULL, $row, $column, $objPHPExcel);
+					//$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($column++, $row, '');					
+				}				
+			#else
+				if ($validObj) {
+					$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($column++, $row, $obj->get${col.name}());
+				}else {
+					$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($column++, $row, '');					
+				}
+			#end
+			Inform8Context::getLogger()->log(BaseLogger::$DEBUG, "generateExpandedRow - Col:" . $column);
+		#end
+		
+		return $column;
+	}
+	
+	
+	public static function isValid($obj) {
+		return !(is_null($obj) || (!is_object($obj) && $obj == -1));
+	}
+  
+  }
+?>

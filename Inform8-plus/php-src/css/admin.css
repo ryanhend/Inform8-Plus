@@ -1,0 +1,422 @@
+/* Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+ */
+* {margin: 0; padding: 0;}
+
+html, body {
+}
+
+.clear {
+	clear:both;
+}
+
+a{
+  	color: #444;
+}
+
+a.selected .visited{
+	color: #444;
+}
+
+li {
+  list-style-type: none;
+}
+
+
+th {
+	background-color: #CCCCCC;
+	border-right:solid 1px #AAAAAA;
+	height:22px;
+	padding-left: 6px;
+}
+
+.inputText{
+	background-color: white;
+	border:solid 1px #BBBBBB;
+	color: black;
+	padding: 2px;
+}
+
+h1 {
+   font: 1.9em Georgia, "Times New Roman", serif;
+   letter-spacing: 1px;
+   color: #565350;
+   font-weight: normal;
+}
+
+
+img {
+	border: 0;
+}
+
+fieldset {
+     border: none;
+}
+
+/******************************	
+*	  MAIN LAYOUT		      *
+*******************************/
+body {
+     text-align: left;
+     font-family: arial, serif;
+     font-size: 10px;
+     line-height: 1em;
+     color: #444;
+}
+
+.jack-ui-layout-content {
+	width:100%;
+	min-height: 600px;
+}
+.jack-ui-layout-content1 {
+}
+
+
+/******************************	
+*	  JACK-HEADER  				      *
+*******************************/
+.jack-header {
+	padding: 8px;
+}
+
+.jack-header-logo {
+	float: left;
+}
+
+.jack-header-searchlogout {
+	float: right;
+}
+
+
+/******************************	
+*	  MENU				      *
+*******************************/
+.jack-menu {
+}
+
+.jack-menu-heading {
+	font-weight: bold;
+}
+
+div .jack-menu-home {
+	margin-left: 6px;
+}
+
+.jack-menu-item {
+	
+}
+
+.goog-toolbar {
+	border: solid 1px #cccccc;
+}
+
+
+/******************************	
+*	  Ordering Items	      *
+*******************************/
+.jack-orderitems-list{
+	list-style-type: none; 
+	margin: 0; 
+	padding: 0; 
+}
+
+.jack-orderitems-list-row {
+	margin: 0 px;
+	margin-bottom: 6px; 
+	background-color: #FFFFFF;
+	border: 1px solid grey;
+	padding: 12px;
+	padding-left: 6px;
+	cursor:move;
+}
+
+.jack-orderitems-list-rowdata {
+}
+
+.jack-orderitems-list-row:hover{ 
+	background-color: #B4CD95;
+}
+
+.jack-orderitems-parent-selector{
+	margin-bottom: 12px;
+}
+
+
+
+/******************************	
+*	  Quick Search            *
+*******************************/
+.jack-quicksearch {
+	padding: 4px;
+	padding-left: 8px;
+	float:left;
+}
+
+.jack-quicksearch-submit {
+		background-color: #00AEEF;
+		color: white;
+		border: none;
+		font-weight: bold;
+		padding: 1px;
+		margin-right: 2px;
+		margin-left: 2px;
+}
+
+.jack-quicksearch-reset {
+		background-color: #CCCCCC;
+		color: white;
+		border: none;
+		font-weight: bold;
+		padding: 1px;
+}
+
+/******************************	
+*	  Login Screen            *
+*******************************/
+.jack-login-error{
+	font: 1.5em Georgia, "Times New Roman", serif;
+   	letter-spacing: 1px;
+   	color: #ED1C24;
+   	font-weight: normal;
+}
+
+.jack-login-login {
+	background-color: #00AEEF;
+	color: white;
+	border: none;
+	font-weight: bold;
+	padding: 1px;
+	margin-right: 2px;
+	margin-left: 2px;	
+}
+
+/******************************	
+*	  View / Update Create    *
+*******************************/
+.jack-createviewupdate{
+}
+
+.jack-field-wrapper {
+	margin-bottom:8px;
+}
+
+.jack-createviewupdate-toolbar {
+	padding-top: 2px;
+	padding-bottom: 2px;
+	font: 9pt;
+}
+
+.jack-createviewupdate-content{
+	border-top: none;
+}
+
+.jack-createviewupdate-linkedinfo{
+	margin-top:10px;
+}
+
+.jack-createviewupdate-view{
+	padding:10px;
+	padding-right:0px;
+	margin-bottom: 8px;
+}
+
+.jack-createviewupdate-form{
+	padding:10px;
+	padding-right:0px;
+	margin-bottom: 8px;
+}
+
+.jack-createviewupdate-label {
+	float: left;
+	width: 125px;
+	vertical-align: baseline;
+}
+
+.jack-createviewupdate-field {
+	float: left;
+	vertical-align: baseline;
+}
+
+.jack-crud-reset, .jack-crud-save{
+	margin-right: 8px;
+}
+
+/******************************	
+*	  Jack Fields								*
+*******************************/
+a.jk-fkrefresh, .ui-widget-content a.jk-fkrefresh {
+	color: #999999;
+	font-size: 8pt;
+	padding-left: 4px;
+}
+
+.ui-widget-content a.jk-fkrefresh {
+	color: #999999;
+}
+
+/******************************	
+*	  Jack Fields								*
+*******************************/
+.jack-field-wrapper {
+	padding-bottom: 6px;
+}
+
+
+/******************************	
+*	  Task Priority           *
+*******************************/
+.jack-ui-priority-high {
+ color: red;
+}
+
+.jack-ui-priority-medium {
+ color: orange;
+}
+
+.jack-ui-priority-low {
+}
+
+
+
+/******************************	
+*	  Feedback			      *
+*******************************/
+.jack-ui-msg {
+	padding: 4px 2px 4px 4px;
+}
+
+.jack-ui-msg-wrapper {
+	display: none;
+	width : auto;
+	min-width: 250px;
+	min-height: 40px;
+	border:solid 1px #BBBBBB;
+	background-color: #FFFAB3;
+}
+
+.jack-feedback{
+	min-width: 250px;
+}
+
+.jack-feedback-tmsg {
+    margin-bottom: 4px;
+}
+
+.jack-feedback-header {
+	background-color: #00AEEF;
+	border:solid 1px #00AEEF;
+	color: white;
+	font-size: 11px;
+	padding: 2px 2px 0px 4px;
+}
+
+.jack-feedback-heading{
+	float: left;
+	padding-bottom: 4px;
+}
+
+.jack-feedback-expandcollapse{
+	float: right;
+}
+
+.jack-feedback-message{
+	padding: 4px 2px 4px 4px;
+	background-color: #E3F0F7;
+	border-bottom:solid 1px #BBBBBB;
+}
+
+.jack-feedback-messages {
+	max-height:125px;
+	position:relative;
+	margin:0;
+	padding:0;
+	overflow:auto;
+	border:solid 1px #00AEEF;
+	
+	border-bottom: none;
+}
+
+
+/******************************	
+*	  Validation              *
+*******************************/
+.jack-ui-validation-requiredfield {
+	color: red;
+}
+
+
+
+/******************************	
+*	  Manager Toolbar         *
+*******************************/
+.jack-ui-toolbar {
+	padding:2px;
+	border-bottom: 0px;
+}
+
+.jack-ui-toolbar-action {
+	float:left;
+	padding: 4px 10px ;
+	border-right:solid 1px #BBBBBB;
+	text-align: center;
+}
+
+.jack-ui-toolbar-option {
+	text-align:center;
+	font-zize: 10px;
+}
+
+.jack-ui-toolbar-option a {
+	text-decoration: none;
+	font-weight: normal;
+	font-size:11px;
+}
+
+
+
+/****************************** 
+*   Calendar                  *
+*******************************/  
+.jack-calendar-mycalendars {
+	font-weight: bold;
+	padding-bottom:12px;
+	text-align: center;
+}
+
+.jack-calendar-nav {
+  width: 140px;
+  min-width:140px;
+  background-color: #eee;
+  border: 1px solid #ccc;
+  margin-right: 12px;
+  padding:4px;
+}
+
+
+.jack-calendarlist-calendar {
+	 padding:4px;
+	 margin-bottom:2px;
+}
+
+.jack-calendarlist-refresh {
+	padding-top:6px; 
+}
+
+/******************************	
+*	  Flyout Menu 			  *
+*******************************/	
+.hidden { position:absolute; top:0; left:-9999px; width:1px; height:1px; overflow:hidden; }
+.fg-button { clear:left; margin: 0 4px 40px 0; padding: .4em 1em; text-decoration:none !important; cursor:pointer; position: relative; text-align: center; zoom: 1; }
+.fg-button .ui-icon { position: absolute; top: 50%; margin-top: -8px; left: 50%; margin-left: -8px; }
+
+button.fg-button { width:auto; overflow:visible; } /* removes extra button width in IE */
+
+.fg-button-icon-left { padding-left: 2.1em; }
+.fg-button-icon-right { padding-right: 2.1em; }
+.fg-button-icon-left .ui-icon { right: auto; left: .2em; margin-left: 0; }
+.fg-button-icon-right .ui-icon { left: auto; right: .2em; margin-left: 0; }
+.fg-button-icon-solo { display:block; width:8px; text-indent: -9999px; }	 /* solo icon buttons must have block properties for the text-indent to work */	

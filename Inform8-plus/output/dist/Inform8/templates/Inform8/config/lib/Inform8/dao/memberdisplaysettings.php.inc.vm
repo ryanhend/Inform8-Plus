@@ -1,0 +1,10 @@
+#* 
+ Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+*#
+#set($tds = ${col.settings})
+new TableMemberDisplaySettings(0, true, Array(#foreach( $lbl in $tds.labels )	#if ($velocityCount > 1),#end '${lbl}' #end ), Array(#foreach( $key in ${tds.properties.keySet()} )	#if ($velocityCount > 1),#end '$key'=>'${tds.properties.get($key)}' #end ))

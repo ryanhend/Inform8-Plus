@@ -1,0 +1,47 @@
+<?php 
+/* Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+ */
+?><?php 
+class ${table.name}JqGridBuilder { 
+
+  function toJqGridArray($obj) {
+	return array(
+		'EditButtons'=>'-',
+		'id'=>$obj->get${table.primaryKey.name}()
+		#foreach( $col in $table.columns ) 
+			#if(!${col.settings.hasLabel('hidden')}),
+    			#if($col.childForeignKey) 
+					#if(${col.childForeignKey.masterTable.settings.hasProperty('fkMember')}) #set($cname = ${col.childForeignKey.masterTable.settings.getProperty('fkMember', '')}) #set($fkcol = ${col.childForeignKey.masterTable.getColumn($cname)}) #else #set($fkcol = ${col.childForeignKey.masterTable.primaryKey}) #end
+					'${col.name}'=>$this->buildFkCellValue('${table.name}','${col.childForeignKey.masterTable.name}', '${col.name}', $obj->get${col.name}(), $this->getFkData($obj->get${col.name}AsObject(), '${fkcol.name}'))
+    			#else 
+    				'${col.name}'=>$this->buildCellValue('${table.name}', '${col.name}', $obj->get${col.name}())
+    			#end
+			#end 
+		#end);
+  }
+  
+  function getFKData($obj, $field) {
+	if (is_null($obj) || (!is_object($obj) && $obj == -1)) {
+	  return "";
+	}else {
+		$method = 'get' . $field;
+		return $obj->$method();
+	}
+  }
+  
+	function buildFkCellValue($tblName, $otherTableName, $memName, $linkVal, $value) {
+		$res = array("tbl" => $tblName,"otbl" => $otherTableName, "mem"=>$memName, "lval"=>$linkVal, "dval"=>$value);
+		return json_encode($res);
+  }
+	
+  function buildCellValue($tblName, $memName, $value) {
+		$res = array("tbl" => $tblName, "mem"=>$memName, "val"=>$value);
+		return json_encode($res);
+  }
+
+}

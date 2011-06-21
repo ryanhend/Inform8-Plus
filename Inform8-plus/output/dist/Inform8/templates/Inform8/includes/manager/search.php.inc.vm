@@ -1,0 +1,35 @@
+#* 
+ Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+*#
+<div id="<?php echo $tempquickSearchId ?>" class="jack-quicksearch">
+	<div>
+		<form id="<?php echo $quickSearchFormId; ?>" 
+			onsubmit="processQuickSearch('<?php echo $gridId ?>', '<?php echo $quickSearchFormId; ?>'); return false;">
+			<select id="searchfield" name="field" onchange="updateSearch(this.options[this.selectedIndex].value, '<?php echo $quickSearchFormId; ?>')">
+				<option value=""><?php echo WebContext::getLanguage()->get('searchField'); ?></option>
+        #foreach( $col in $table.columns )
+          #if(!$col.settings.hasLabel('PASSWORD') && !$col.settings.hasLabel('FILE'))
+            <option value="${table.name}.${col.name}" ><?php echo WebContext::getLanguage()->get('Tbl_${table.name}_${col.name}'); ?></option>
+          #end
+        #end
+			</select>
+			
+			<select id="searchoption" style="display:none;" name="searchoption"></select>
+			
+			<input id="searchtype" type="hidden" name="searchtype" value="vl" />
+			
+			<input  id="searchvalue" type="text" style="display:none;" name="value" />
+			<input  id="search-datepicker" type="text" name="datepickervalue" style="display:none;"/>
+			<select id="search-enumSelect" name="enumValue" style="display:none;"></select>
+			<select id="search-fkSelect" name="fkValue" style="display:none;"></select>
+			
+			<input class="jack-quicksearch-submit" type="submit" value="<?php echo WebContext::getLanguage()->get('search'); ?>" />
+			<input class="jack-quicksearch-reset" type="reset"  value="<?php echo WebContext::getLanguage()->get('reset'); ?>" onclick="clearQuickSearch('<?php echo $gridId ?>'); resetSearchFields('<?php echo $quickSearchFormId ?>');" />
+		</form>
+	</div>
+</div>

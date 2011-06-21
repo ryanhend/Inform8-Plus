@@ -1,0 +1,57 @@
+#* 
+ Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+*#
+
+#* 
+  Link to existing record in other table via the join table
+  Typically used in a Many to Many relationship.
+*#
+function deleteMultiple${fk.childTable.name}Links() {
+  logToFile("delete ${fk.childTable.name} Links start");
+
+  $otherDao = new ${fk.childTable.name}Dao();
+  
+  $theObjId = Request::getSafeGetOrPost('objId');
+  $linkIds = explode(',', Request::getSafeGetOrPost('linkedIds'));
+  
+  $totalPassed = 0;
+  $totalFailed = 0;
+  $res = new RequestResult();
+            
+  foreach($linkIds as $link) {
+    $opRes = new OperationResult();
+    $otherBo = $otherDao->getWhere(array('${fk.otherField}', '${fk.otherConnectingTableField().name}'), 
+      array($theObjId, $link));
+    $opRes->id = $link;
+    $tempobj = $otherDao->deleteWithId($otherBo[0]->getPk());
+    if ($tempobj == 1) {
+      $totalPassed++;
+      $opRes->setPassed();
+      $opRes->displayMessage = WebContext::getLanguage()->get('Tbl_${fk.childTable.name}__linkDeleted');
+    }else{
+      $totalFailed++;
+      $opRes->setFailed();
+      $opRes->displayMessage = WebContext::getLanguage()->get('Tbl_${fk.childTable.name}__linkDeleteFailed');
+    }
+    $res->addOperationResult($opRes);               
+  }
+
+  if ($totalFailed > 0 && $totalPassed > 0) {
+    $res->displayMessage = WebContext::getLanguage()->get('Tbl_${fk.childTable.name}__linksDeletePartial');
+    $res->setPartialFailure();
+  }else if ($totalFailed == 0) {
+    $res->displayMessage = WebContext::getLanguage()->get('Tbl_${fk.childTable.name}__linksDeleted');
+    $res->setPassed();
+  }else {
+    $res->displayMessage = WebContext::getLanguage()->get('Tbl_${fk.childTable.name}__linksDeleteFailed');   
+    $res->setFailed();
+  }             
+  
+  logToFile("delete ${fk.childTable.name} Links end");
+  return $res;
+}

@@ -1,0 +1,7 @@
+#tooltip {
+    padding: 5px 10px;
+    background: #cad7e0;
+    border: 1px solid #b2bdc3;
+    opacity: 0.90;
+    z-index: 1003;
+}

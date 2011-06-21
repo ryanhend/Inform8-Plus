@@ -1,0 +1,79 @@
+<!--
+   * Copyright 2011 - Inform8
+   * http://www.inform8.com
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License")
+   * http://www.apache.org/licenses/LICENSE-2.0
+-->
+<project name="Inform8+" default="build" basedir=".">
+
+  <property file="../Inform8-build/build.properties" />
+  <property file="../Inform8-build/default.properties" />
+
+  <path id="compile.classpath">
+      <fileset dir="${lib.folder}" />
+      <fileset dir="../Inform8-common/${lib.folder}" />
+      <fileset dir="../Inform8-common/output/dist/bin/" />
+      
+      <fileset dir="../Inform8-basic/${lib.folder}" />
+      <fileset dir="../Inform8-basic/output/dist/php/bin/" />
+  </path>
+
+  <target name="init">
+    <delete dir="${build.out.folder}" />
+    <mkdir dir="${build.out.folder}" />
+    
+    <delete dir="${dist.folder}" />
+    <mkdir dir="${dist.folder}" />
+    
+    <mkdir dir="${dist.folder}/bin" />
+	<mkdir dir="${dist.folder}/site" />
+    <mkdir dir="${dist.folder}/setup" />
+    <mkdir dir="${dist.folder}/Inform8" />
+  </target>
+  
+  
+  <target name="compile" depends="init">
+    <javac debug="true" srcdir="src" destdir="${build.out.folder}" classpathref="compile.classpath" source="1.6">
+    </javac>
+  </target>
+
+  <target name="jar" depends="compile">
+    <copy todir="${build.out.folder}">
+      <fileset dir="src">
+        <include name="**/*.properties" />
+      </fileset>
+    </copy>
+    <jar destfile="${dist.folder}/bin/${plus.jar.file.name}" basedir="${build.out.folder}">
+      <manifest>
+        <attribute name="Copyright" value="Copyright 2011 - Inform8." />
+        <attribute name="Website" value="http://www.inform8.com" />
+        <attribute name="Version" value="Inform8.plus.alpha.${plus.build.major}.${plus.build.minor}" />
+        <attribute name="CodeOutput" value="PHP" />
+      </manifest>
+    </jar>
+  </target>  
+  
+
+  <target name="build" depends="jar">
+    <copy todir="${dist.folder}/site/">
+      <fileset dir="php-src"></fileset>
+    </copy>
+    <copy todir="${dist.folder}/setup/sql"> 
+      <fileset dir="sql"></fileset>
+    </copy>
+    <copy todir="${dist.folder}/Inform8/templates/Inform8">
+      <fileset dir="templates"></fileset>
+    </copy>
+    <copy todir="${dist.folder}/">
+      <fileset dir="build/site"></fileset>
+    </copy>
+    <copy todir="${dist.folder}/Inform8/">
+      <fileset dir="build/gen"></fileset>
+    </copy>    
+    <copy todir="${dist.folder}/Inform8/config">
+      <fileset dir="config"></fileset>
+    </copy>
+  </target> 
+
+</project>

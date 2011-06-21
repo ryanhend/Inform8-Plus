@@ -1,0 +1,284 @@
+<?php 
+/* Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+ */
+?><?php 
+  #macro(getOtherTable $fk) 
+    #set($jt_cm = ${daFk.childTable.columnModel.copy()})
+    #set($temp = ${jt_cm.remove(${daFk.childColumnName})})
+    #set($oc = ${jt_cm.columns.get(0)})
+    #set($ot = ${jt_cm.columns.get(0).childForeignKey.masterTable})
+  #end
+    
+    if ($authManager == NULL) die;
+	if (!$authManager->isAuthenticated()) die;
+	
+	// dao for saving
+	$dao = new ${table.name}Dao();
+	
+	//object id
+	$id=Request::getOrPost('id');
+	
+	//load
+	$obj = $dao->get($id);
+  if (is_null($obj) || (!is_object($obj) && $obj == -1) ) {
+		echo '${table.name} record not found';
+		die;
+	}	
+	
+	$pageid = time();
+	
+	$vieweditsectionid = 'section-view-edit-' . $pageid;
+	
+	$editsectionid = 'section-update-${table.name}-' . $obj->get${table.primaryKey.name}() . '-' . $pageid;
+	$viewsectionid = 'section-view-${table.name}-' . $obj->get${table.primaryKey.name}() . '-' . $pageid;
+	$saveActionId = 'savebutton-update-${table.name}-' . $obj->get${table.primaryKey.name}() . '-' . $pageid;
+	$deleteActionId = 'deletebutton-update-${table.name}-' . $obj->get${table.primaryKey.name}() . '-' . $pageid;
+	$formid = 'form-update-${table.name}-' . $obj->get${table.primaryKey.name}() . '-' . $pageid;
+	$viewfeedbackid = 'feedback-update-view-${table.name}-' . $obj->get${table.primaryKey.name}() . '-' . $pageid;  
+?>
+
+<div id="<?php echo $vieweditsectionid; ?>" class="ui-widget jack-createviewupdate">
+  <?php
+    if (file_exists('ajax/${table.name}Update_BU.inc.php')) {
+      include 'ajax/${table.name}Update_BU.inc.php';
+    }
+  ?>
+	<div class="ui-widget-header jack-createviewupdate-toolbar">
+		<div>
+			#set ($theTable = $table)
+			#set ($newInNewTab = true)
+    		#parse('includes/manager/toolbar-new.php.inc.vm')
+      		#set ($newInNewTab = false)
+
+      #if(!${table.settings.hasLabel('DB_READ_ONLY')} && !${table.settings.hasLabel('UI_READ_ONLY')})            		
+        <div class="jack-ui-toolbar-action" id="<?php echo $deleteActionId; ?>">
+        	<div class="jack-ui-toolbar-option">
+        			<a href="#" onclick="javascript:deleteItem('${table.name}', '<?php echo $id; ?>', '<?php echo $viewsectionid; ?>', '<?php echo $editsectionid; ?>', '<?php echo $saveActionId; ?>', '<?php echo $deleteActionId; ?>'); return false;"><img src="images/smtb/delete_item.png" /></a>
+        	</div>
+        	<div class="jack-ui-toolbar-option">
+        			<a href="#" onclick="javascript:deleteItem('${table.name}', '<?php echo $id; ?>', '<?php echo $viewsectionid; ?>', '<?php echo $editsectionid; ?>', '<?php echo $saveActionId; ?>', '<?php echo $deleteActionId; ?>'); return false;"><?php echo WebContext::getLanguage()->get('delete'); ?></a>
+        	</div>
+        </div>
+              		
+    		<div class="jack-ui-toolbar-action" id="<?php echo $saveActionId; ?>" style="display:none">
+     			<div class="jack-ui-toolbar-option">
+    					<a href="#" onclick="$('#<?php echo $formid; ?>').submit(); return false;"><img src="images/smtb/save.png" /></a>
+     			</div>
+     			<div class="jack-ui-toolbar-option">
+    					<a href="#" onclick="$('#<?php echo $formid; ?>').submit(); return false;"><?php echo WebContext::getLanguage()->get('save'); ?></a>
+    			</div>
+     		</div>
+   		#end
+    </div>
+    <div style="clear: both;" />
+	</div>
+	
+	<div class="ui-widget-content jack-createviewupdate-content">
+		
+		#if(!${table.settings.hasLabel('UI_READ_ONLY')} && !${table.settings.hasLabel('DB_READ_ONLY')})
+  		<div style="padding: 8px">
+  			<div id="<?php echo $pageid ?>-viewStyle-wrapper">
+  				<input type="radio" id="<?php echo $pageid ?>-viewStyle-view" onClick="showView('<?php echo $editsectionid ?>', '<?php echo $viewsectionid ?>', '<?php echo $saveActionId ?>'); return false;" name="<?php echo $pageid ?>-viewStyle" checked="checked" /><label for="<?php echo $pageid ?>-viewStyle-view"><?php echo WebContext::getLanguage()->get('view'); ?></label>
+          <input type="radio" id="<?php echo $pageid ?>-viewStyle-edit" onClick="showEdit('<?php echo $editsectionid ?>', '<?php echo $viewsectionid ?>', '<?php echo $saveActionId ?>', '<?php echo $deleteActionId ?>'); return false;" name="<?php echo $pageid ?>-viewStyle" /><label for="<?php echo $pageid ?>-viewStyle-edit"><?php echo WebContext::getLanguage()->get('edit'); ?></label>
+        </div>
+      	<script>
+        	$(document).ready(function() {
+      			$("#<?php echo $pageid ?>-viewStyle-wrapper").buttonset();
+          });
+  			</script>
+  		</div>
+      
+      
+  		<div id="<?php echo $editsectionid ?>" style="display:none" >
+  			<?php echo WebContext::getLanguage()->get('loading...'); ?>
+      </div>
+    #end
+	
+    <div id="<?php echo $viewsectionid ?>">
+    	<div id="view">
+				<?php echo WebContext::getLanguage()->get('loading...'); ?>
+				<script>
+    			${ds}.ajax({
+          	type: "GET",
+            url: "rest/json/${table.name}/${table.primaryKey.name}/<?php echo $obj->get${table.primaryKey.name}(); ?>?expanded=1",
+            dataType: 'json',
+            success: function(data){
+          		buildViewForm(
+  							window.I8.td['${table.name}'], 
+  							data, 
+  							$('#<?php echo $viewsectionid ?> #view')
+							);
+							
+							#if(!${table.settings.hasLabel('UI_READ_ONLY')} && !${table.settings.hasLabel('DB_READ_ONLY')})
+  							buildEditForm(
+  								window.I8.td['${table.name}'], 
+  								data, 
+  								$('#<?php echo $editsectionid ?>'), 
+  								$('#<?php echo $viewsectionid ?> #view'),
+  								'<?php echo $formid; ?>'
+  							);
+							#end    
+    				}
+    			});
+  			</script>
+      </div>
+    </div>
+		
+	</div>
+</div>
+<?php
+    if (file_exists('ajax/${table.name}Update_AU.inc.php')) {
+      include 'ajax/${table.name}Update_AU.inc.php';
+    }
+?>
+
+
+#if($table.primaryKey.masterForeignKeys.size() > 0)
+<div class="ui-widget jack-createviewupdate-linkedinfo">
+	<div style="padding-bottom: 8px;" class="ui-widget-content">
+		<div id="<?php echo $pageid ?>-subgrid-tabs">
+			<ul id="tabHeader">
+            #foreach( $fk in ${table.primaryKey.masterForeignKeys})
+				#if ($fk.childTable.settings.hasLabel('JOIN_TABLE'))
+                    #getOtherTable($fk)
+					#set($theTable=${ot})
+					#set($theField=${oc})
+					#set($joinTable=${fk.childTable})
+				#else
+					#set($theTable=${fk.childTable})
+					#set($theField=${fk.childTable.getColumn(${fk.childColumnName})})
+					#set($joinTable=${fk.childTable})
+				#end
+        			<li><a class="jack_tabs_fkTab" href="#<?php echo $pageid ?>-tab-${theTable.name}-${theField.name}"><span><?php echo WebContext::getLanguage()->get('Tbl_${theTable.name}'); ?></span></a></li>
+            #end
+			</ul>
+			#foreach( $fk in ${table.primaryKey.masterForeignKeys})
+                #if ($fk.childTable.settings.hasLabel('JOIN_TABLE'))
+                    #getOtherTable($fk)
+                    #set($theTable=${ot})
+                    #set($theField=${oc})
+                    #set($joinTable=${fk.childTable})
+                #else
+                    #set($theTable=${fk.childTable})
+                    #set($theField=${fk.childTable.getColumn(${fk.childColumnName})})
+                    #set($joinTable=${fk.childTable})
+                #end	
+				
+				<div id="<?php echo $pageid ?>-tab-${theTable.name}-${theField.name}">
+						<?php
+							$currfkGridId = "subgrid${theTable.name}_${theField.name}" . $pageid;
+							$currfkQuickEditId = "QE${theTable.name}_${theField.name}" . $pageid;
+							$currfkGridPagerId = $pageid. "-subgrid-pager-${theTable.name}-${theField.name}";
+							$currfkGridTempToolbarId = $pageid. "-subgrid-${theTable.name}-${theField.name}-toolbar";
+							$jsToolbarLoaded = "fk" . $pageid . "SG${theTable.name}${theField.name}TB_LD";
+						?>					
+                    #if($fk.otherConnectingTableField().settings.hasLabel('embeddedjoin'))
+						<?php 
+							$embeddedformid = 'form-create-${fk.otherConnectingTable().name}-${fk.childTable.name}-' . $pageid; 
+							$newpopupDialog = $pageid . '-add${fk.childTable.name}Dialog';
+						?>
+						## To be substituted into the grid below as the toolbar
+                        <div id="<?php echo $pageid ?>-subgrid-${theTable.name}-${theField.name}-toolbar">
+							
+							#set($reloadGrid=true) #set($theGridId="currfkGridId") 	#set($theFormId="embeddedformid")
+							#set($newPopupDialog=true) #set($theDialogId="newpopupDialog")
+							#set($deleteSelected=true)
+							#set($theFeedbackId='feedbackid')
+							#set($showEnabled=true)
+							
+							#if(${joinTable.orderingMember})
+                                #set($hideSort=false)
+                            #else 
+                                #set($hideSort=true)
+							#end
+							
+              				<div class="jack-ui-toolbar">
+								#parse('includes/manager/toolbar-new.php.inc.vm')
+								<div style="clear: both;" />
+							</div>
+                        </div>
+						#parse('includes/manager/embeddedjoinform.php.inc.vm')
+						
+                    #elseif($fk.otherConnectingTableField().settings.hasLabel('embeddedlinkorjoin'))
+						<?php 
+							$embeddedformid = 'form-create-${fk.otherConnectingTable().name}-${fk.childTable.name}-' . $pageid;
+							$embeddedlinkformid = 'form-link-${fk.otherConnectingTable().name}-${fk.childTable.name}-' . $pageid; 
+							$newpopupDialog = $pageid . '-add${fk.childTable.name}Dialog';
+						?>
+						## To be substituted into the grid below as the toolbar
+                        <div id="<?php echo $pageid ?>-subgrid-${theTable.name}-${theField.name}-toolbar">
+							
+							#set($reloadGrid=true) #set($theGridId="currfkGridId") 	
+							#set($theFormId="embeddedformid") 
+							#set($newPopupDialog=true) #set($theDialogId="newpopupDialog")
+							#set($deleteSelected=false)
+							#set($deleteSelectedLinks=true)
+							#set($theFeedbackId='feedbackid')
+							#set($showEnabled=true)
+              
+             				#if(${joinTable.orderingMember})
+                				#set($hideSort=false)
+             				#else 
+                				#set($hideSort=true)
+              				#end						
+							
+             				<div class="jack-ui-toolbar">
+								#parse('includes/manager/toolbar-new.php.inc.vm')
+								<div style="clear: both;" />
+							</div>
+                        </div>
+						#parse('includes/manager/embeddedlinkorjoinform.php.inc.vm')
+						
+					#else
+						<?php 
+							$embeddedformid = 'form-create-${fk.childTable.name}-' . $pageid;
+							$newpopupDialog = $pageid . '-add${fk.childTable.name}Dialog';
+						?>
+						## To be substituted into the grid below as the toolbar
+                        <div id="<?php echo $pageid ?>-subgrid-${theTable.name}-${theField.name}-toolbar">
+							
+							#set($reloadGrid=true) #set($theGridId="currfkGridId") 	
+							#set($theFormId="embeddedformid") 
+							#set($newPopupDialog=true) #set($theDialogId="newpopupDialog")
+							#set($deleteSelected=true)
+							#set($theFeedbackId='feedbackid')
+							#set($showEnabled=true)
+
+              				#if(${joinTable.orderingMember})
+								#set($hideSort=false)
+              				#else 
+                				#set($hideSort=true)
+              				#end
+							
+				            <div class="jack-ui-toolbar">
+								#parse('includes/manager/toolbar-new.php.inc.vm')
+								<div style="clear: both;" />
+							</div>
+                        </div>
+						#parse('includes/manager/embeddedcreateform.php.inc.vm')
+					#end					
+					
+    				<div id="manager-grid">
+                		<table id="<?php echo $currfkGridId ?>"></table> 
+    					<table id="<?php echo $currfkGridPagerId ?>"></table> 
+                    </div>	
+				</div>
+				#parse('includes/manager/fkdetailgrid.php.inc.vm')
+    		#end				
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+  $(document).ready(function(){
+    $("#<?php echo $pageid ?>-subgrid-tabs").tabs();
+	$("#<?php echo $pageid ?>-subgrid-tabs > ul").removeClass('ui-corner-all');
+  });
+</script>
+#end
+
+

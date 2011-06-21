@@ -1,0 +1,47 @@
+
+.jui-left {
+	float:left;
+}
+
+.jui-right {
+	float:right;
+}
+
+/*----- bar button -----*/
+.jui-bar ul {
+	margin:0px;
+	padding:0px;
+}
+
+.jui-bar li {
+	float:left;
+	list-style:none;
+	padding:4px;
+	cursor:pointer;
+	margin:2px;
+}
+
+
+/*----- bar text container -----*/
+.jx-bar-button div {
+	float:left;
+}
+
+.jx-bar-button-right div {
+	float:right;
+}
+
+.jx-bar-button div {
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+	font-size:11px;
+	color:#666666;
+	padding:4px 8px 4px 8px;
+	margin:4px 8px 4px 8px;	
+	border:#e5e5e5 solid 1px;
+}
+
+/*----- button tooltip -----*/
+.jx-bar-button-tooltip {
+	height:auto;
+	padding:5px 10px 5px 10px;
+}

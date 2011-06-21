@@ -1,0 +1,40 @@
+#* 
+ Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+*#
+<?php
+  // site settings + config + seession load
+  require_once '../settings.php';
+?>
+<script>
+	function viewRecord(table, pk, value) {
+		document.location = "json/" + table + "/" + pk + "/" + value;
+	}
+</script>t
+
+<table>
+  <thead>
+    <tr>
+      <th>Table</th>
+      <th>View All</th>
+      <th>View Record</th>
+    </tr>
+  </thead>
+  <tbody>
+<?php
+  #foreach( $table in $tables )
+?>
+  <tr>
+    <td>${table.name}</td>
+    <td><A href="json/${table.name}/ALL/ALL">view all</a></td>
+    <td><form name="${table.name}" onSubmit="viewRecord('${table.name}', '${table.primaryKey.name}', this.elements['${table.name}'].value);return false;" ><input type="text" size="4" name="${table.name}"><input type="submit" value="view"></form></td>
+  </tr>
+<?php
+  #end  
+?>
+  </tbody>
+</table>

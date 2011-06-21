@@ -1,0 +1,135 @@
+<?php 
+/* Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+ */
+?><?php 
+  if ($authManager == NULL) die;
+  if (!$authManager->isAuthenticated()) die;
+  
+  $pageid = time();
+  $orderSectionId = "orderSection-". $pageid;
+  $orderItemsId = "orderItems-". $pageid;
+  
+?>
+#if (!${table.settings.hasLabel('DB_READ_ONLY')} && !${table.settings.hasLabel('UI_READ_ONLY')})
+<div id="<?php echo $pageid ?>">
+  <div id="manager-toolbar" class="jack-ui-toolbar">
+   <div style="float:right">
+      #set ($hideDelete = true) #set ($hideEnabled = true) #set ($hideSort = true) #set ($hideNew = true)
+      #parse('includes/manager/toolbar-std.php.inc.vm')
+   </div>
+   <div style="clear: both;" />
+  </div>
+  
+  <?php 
+  
+    $dao = new ${table.name}Dao();
+    $iql = new ${table.name}IQL();
+  
+    #if(${table.parentChildMember})
+      $parentdao = new ${table.parentChildMember.masterForeignKey.otherTable.name}Dao();
+      $parentAll = $parentdao->getAll();
+      $parentCount = count($parentAll);
+      
+      $pid = Request::getSafeGetOrPost('parentId');
+
+      if(!$pid) {
+        $tempall = $parentdao->getAll();
+        $pid = $tempall[0]->get${table.parentChildMember.masterForeignKey.otherTable.primaryKey.name}();
+      }
+      
+      if($pid) {
+        $all = ${table.name}IQL::select()->where(NULL, ${table.name}IQL::$_${table.parentChildMember.masterForeignKey.field}, '=', array($pid))->get(); 
+      } 
+    #else
+      $all = $dao->getAll();
+    #end
+    
+    $count = count($all);
+  ?>
+  
+    #if(${table.parentChildMember})
+      <div id="parentOrderGroup" class="jack-orderitems-parent-selector">
+          Order: <select name="parentId" id="parentId" style="margin-left:8px;">
+            <?php 
+              for ($i = 0; $i < $parentCount; $i++) {
+                  $selected = "";
+                if($parentAll[$i]->get${table.parentChildMember.masterForeignKey.otherTable.primaryKey.name}() == $pid) {
+                  $selected = "selected";
+                }
+                echo '<option ' . $selected . ' value="' .  $parentAll[$i]->get${table.parentChildMember.masterForeignKey.otherTable.primaryKey.name}() . '">' .  
+                    $parentAll[$i]->getFkData() . '</option>';
+              }
+            ?>
+          </select>
+      </div>
+    #end
+    <script>
+      $("#parentId").change(function () {
+        var pid = $("#parentId").val();
+        ${ds}.ajax({
+          type: "POST",
+          url: "ajax.php",
+          data: "action=Order&object=${table.name}&parentId=" + pid,
+          dataType: 'html', 
+          success: function(data){
+            $("#<?php echo $pageid ?>").html(data);               
+          }
+        });
+      });
+    </script>
+  <?php
+    if($all) {
+  ?>
+    <div id="<?php echo $orderSectionId ?>">
+          <ul id="<?php echo $orderItemsId ?>">
+          <?php     
+          for ($i = 0; $i < $count; $i++) {
+                $tempobj = $all[$i];
+          ?>
+                <li class="jack-orderitems-list-row" id="orderList_<?php echo $tempobj->get${table.primaryKey.name}(); ?>">
+                <div class="jack-orderitems-list-rowdata">
+                  #set($objName='$tempobj')
+                  #set($renderElements=$table.orderDisplayElements)
+                  #parse('includes//render//render.php.inc.vm')
+                </div>
+            </li>
+          <?php
+              }
+          ?>
+          </ul>
+      </div>
+      <script>
+
+          $("#<?php echo $orderItemsId ?>").sortable({
+            update : function () {
+              displayTempMessage('<img src="images/loading.gif" /> ' + getLanguageEntry('Tbl_${table.name}__ordering'), true);
+              formdata = $("#<?php echo $orderItemsId ?>").sortable('serialize') + "&object=${table.name}&action=order" ;
+              ${ds}.ajax({
+                type: "POST",
+                url: "ajax.php",
+                data: formdata,
+                dataType: 'json', 
+                error: function(req, stat, error){
+                  displayTempMessage(stat + " , " + error);
+                },
+                success: function(data){
+                  if (data.result == 1) {
+                    displayMessage('<img src="images/pass.png" class="feeback-success-img" /> ' + data.displayMessage);
+                  }else {
+                    displayMessage('<img src="images/failed.png" class="feeback-success-img" /> ' + data.displayMessage);
+                  }               
+                }
+              });
+            }
+          });
+      </script>
+  <?php 
+    }
+  ?>
+</div>
+#end

@@ -1,0 +1,99 @@
+#* 
+ Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+*#
+#if(!${table.settings.hasLabel('UI_READ_ONLY')} && !${table.settings.hasLabel('DB_READ_ONLY')})
+
+	#if($newInNewTab)
+		<div class="jack-ui-toolbar-action">
+			<div class="jack-ui-toolbar-option">
+				<a href="" onclick="javascript:displayNewDialog(window.I8.td['${theTable.name}']); return false;"><img src="images/smtb/new.png" /></a>
+			</div>
+			<div class="jack-ui-toolbar-option">
+				<a href="" onclick="javascript:displayNewDialog(window.I8.td['${theTable.name}']); return false;"><?php echo WebContext::getLanguage()->get('new'); ?></a>
+			</div>
+		</div>
+	#end
+		
+	
+	#if($newPopupDialog)
+	<div class="jack-ui-toolbar-action">
+		<div class="jack-ui-toolbar-option">
+				<a href="#" onclick="$('#<?php echo $${theDialogId} ?>').dialog('open'); return false;"><img src="images/smtb/new.png" /></a>
+		</div>
+		<div class="jack-ui-toolbar-option">
+			<a href="" onclick="$('#<?php echo $${theDialogId} ?>').dialog('open'); return false;">Add</a>
+		</div>
+	</div>
+	#end
+	
+	#if($deleteSelected)
+	<div class="jack-ui-toolbar-action">
+		<div class="jack-ui-toolbar-option">
+			<a href="" onclick="javascript:deleteSelected('${theTable.name}', '<?php echo $${theGridId} ?>', '<?php echo $${theFeedbackId} ?>'); return false;"><img src="images/smtb/delete_item.png" /></a>
+		</div>
+		<div class="jack-ui-toolbar-option">
+			<a href="" onclick="javascript:deleteSelected('${theTable.name}', '<?php echo $${theGridId} ?>', '<?php echo $${theFeedbackId} ?>'); return false;">Delete</a>
+		</div>
+	</div>	
+	#end
+	
+	#if($deleteSelectedLinks)
+	<div class="jack-ui-toolbar-action">
+		<div class="jack-ui-toolbar-option">
+			<a href="" onclick="javascript:deleteSelectedLinks(<?php echo $obj->get${table.primaryKey.name}(); ?>, '$fk.baseTable.name', '${fk.childTable.name}', '<?php echo $${theGridId} ?>'); return false;"><img src="images/smtb/delete_item.png" /></a>
+		</div>
+		<div class="jack-ui-toolbar-option">
+			<a href="" onclick="javascript:deleteSelectedLinks(<?php echo $obj->get${table.primaryKey.name}(); ?>, '$fk.baseTable.name', '${fk.childTable.name}', '<?php echo $${theGridId} ?>'); return false;">Delete</a>
+		</div>
+	</div>	
+	#end
+	
+	#if(${theTable.enabledMember} && $showEnabled)
+	<div class="jack-ui-toolbar-action">
+		<div class="jack-ui-toolbar-option">
+			<a href="" onclick="javascript:enableSelected('${theTable.name}', false, '<?php echo $${theGridId} ?>', '${theTable.enabledMember.name}'); return false;"><img src="images/smtb/cross.png" /></a>
+		</div>
+		<div class="jack-ui-toolbar-option">
+			<a href="" onclick="javascript:enableSelected('${theTable.name}', false, '<?php echo $${theGridId} ?>', '${theTable.enabledMember.name}'); return false;">Disable</a>
+		</div>
+	</div>
+	
+	<div class="jack-ui-toolbar-action">
+		<div class="jack-ui-toolbar-option">
+			<a href="" onclick="javascript:enableSelected('${theTable.name}', true, '<?php echo $${theGridId} ?>', '${theTable.enabledMember.name}'); return false;"><img src="images/smtb/tick.png" /></a>
+		</div>
+		<div class="jack-ui-toolbar-option">
+			<a href="" onclick="javascript:enableSelected('${theTable.name}', true, '<?php echo $${theGridId} ?>', '${theTable.enabledMember.name}'); return false;">Enable</a>
+		</div>
+	</div>
+	#end
+	
+	
+	#if(${joinTable.orderingMember} && !$hideSort)
+	<div class="jack-ui-toolbar-action">
+	  <div class="jack-ui-toolbar-option">
+	    <a href="" onclick="javascript:newTab('ajax.php?action=Order&object=${joinTable.name}', 'Order <?php echo WebContext::getLanguage()->get('Tbl_${theTable.name}'); ?>'); return false;" ><img src="images/smtb/cards.png" /></a>
+	  </div>
+	  <div class="jack-ui-toolbar-option">
+	    <a href="" onclick="javascript:newTab('ajax.php?action=Order&object=${joinTable.name}', 'Order <?php echo WebContext::getLanguage()->get('Tbl_${theTable.name}'); ?>'); return false;" ><?php echo WebContext::getLanguage()->get('sort'); ?></a>
+	  </div>
+	</div>
+	#end  
+
+#end
+
+#if($reloadGrid)
+<div class="jack-ui-toolbar-action">
+	<div class="jack-ui-toolbar-option">
+		<a href="" onclick="javascript:reloadGrid('<?php echo $${theGridId} ?>'); resetForm('<?php echo $${theFormId}; ?>'); resetSearchFields('<?php echo $${theFormId}; ?>'); return false;"><img src="images/smtb/reload.png" /></a>
+	</div>
+	<div class="jack-ui-toolbar-option">
+		<a href="" onclick="javascript:reloadGrid('<?php echo $${theGridId} ?>'); resetForm('<?php echo $${theFormId}; ?>'); resetSearchFields('<?php echo $${theFormId}; ?>'); return false;">Reload</a>			
+	</div>
+</div>
+#end

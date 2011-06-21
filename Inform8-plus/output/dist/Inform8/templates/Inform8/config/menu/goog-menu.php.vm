@@ -1,0 +1,99 @@
+#* 
+ Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+*#
+	<script src="plugins/closure/goog.js" type="text/javascript"></script>
+	 <link rel="stylesheet" href="plugins/closure/common.css">
+	 <link rel="stylesheet" href="plugins/closure/menus.css">
+     <link rel="stylesheet" href="plugins/closure/toolbar.css">
+		
+	<style>
+		
+		    /* Base class for all icon elements. */
+    .icon {
+      height: 16px;
+      width: 16px;
+     
+      background-repeat: no-repeat;
+      vertical-align: middle;
+    }
+		
+		.goog-menu {
+      position: absolute;
+      margin: 0;
+      border-width: 1px;
+      border-style: solid;
+      border-color: #ccc #999 #999 #ccc;
+      padding: 0;
+      font: normal 10pt Arial, sans-serif;
+      color: #000;
+      background-color: #fff;
+      cursor: default;
+      outline: none;
+			z-index: 999;
+    }
+
+    .goog-menuitem {
+      margin: 0;
+      border: 0;
+      padding: 4px 32px 4px 4px;
+      color: #000;
+      background-color: #fff;
+      list-style: none;
+    }
+
+    .goog-menuitem-disabled {
+      color: #999;
+    }
+
+    .goog-menuitem-highlight {
+      background-color: #e8eef7 !important;
+    }
+
+    .goog-menuseparator {
+      position: relative;
+      margin: 2px 0;
+      border-top: 1px solid #999;
+      padding: 0;
+      outline: none;
+    }
+		
+		.goog-toolbar-menu-button {
+		 margin-right:4px;
+		}
+	</style>
+	
+  <div id="jack-goog-menu" class="goog-toolbar">
+  	<div id="jackmenu-home" class="goog-toolbar-button jack-menu-home"><a href="#" onclick="javascript:newTab('ajax.php?action=home', '<?php echo WebContext::getLanguage()->get('homeTab'); ?>'); return false;"><img src="images/smtb/home.png" /></a></div>
+	<hr>
+	#if(${config.getAllProperties().getProperty('calendar.on', 'true')} == true)
+		<div id="jackmenu-calendar" class="goog-toolbar-button jack-menu-calendar"><a href="#" onclick="javascript:newTab('ajax.php?action=calendar', '<?php echo WebContext::getLanguage()->get('calendarTab'); ?>'); return false;"><img src="images/smtb/calendar.png" /></a></div>
+		<hr>
+	#end			
+			
+		#foreach( $menu in $siteMenu.menus )
+	    	<div title="<?php echo WebContext::getLanguage()->get('Menu_${menu.name}'); ?>" class="goog-toolbar-menu-button jack-menu-heading">
+			<div class="goog-edit-style"><?php echo WebContext::getLanguage()->get('Menu_${menu.name}'); ?></div>
+	  		#if ($menu.subMenus)
+					<div class="goog-menu">
+	        #foreach( $subMenu in $menu.subMenus )
+	          	<div class="goog-menuitem jack-menu-item" onclick="javascript:selectOrCreateTab('ajax.php?action=Manager&object=${subMenu.name}', '<?php echo WebContext::getLanguage()->get('Tbl_${subMenu.name}__tab'); ?>'); return false;">
+	      			<a href="#" ><?php echo WebContext::getLanguage()->get('SubMenu_${subMenu.name}'); ?></a>
+	      		</div>
+	        #end
+	        </div>	
+  		#end
+  	</div>
+		<hr>
+		#end
+  </div>
+<script>
+    
+    var jackmenu = new goog.ui.Toolbar();
+    jackmenu.decorate(goog.dom.getElement('jack-goog-menu'));
+    
+</script>

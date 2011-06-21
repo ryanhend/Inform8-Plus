@@ -1,0 +1,110 @@
+<?php 
+/* Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+ */
+?><?php 
+	if ($authManager == NULL) die;
+	if (!$authManager->isAuthenticated()) die;
+	
+	$displaySettings = $_SESSION['${table.name}.ListDisplaySettings'];
+	if ($displaySettings == NULL) {
+		$displaySettings = new DisplaySettings('${table.name}');
+		$_SESSION['${table.name}.ListDisplaySettings'] = $displaySettings;
+	}
+	
+	$restrict = Request::getOrPost("restrict");
+
+	$order = Request::getOrPost("order");
+	if($order != NULL) {
+		$displaySettings->setPrimaryOrder($order);
+	}
+	
+	if ($restrict != NULL) {
+		if ($restrict == 'enabled') {
+			echo "setDisplayEnabled";
+			$displaySettings->setDisplayEnabled();
+		}else if ($restrict == 'disabled') {
+			echo "setDisplayDisabled";
+			$displaySettings->setDisplayDisabled();
+		}else if ($restrict == 'all') {
+			echo "setDisplayAll";
+			$displaySettings->setDisplayAll();
+		}
+		$_SESSION["${table.name}.ListDisplaySettings"] = $displaySettings;
+	}
+	
+	$pageid = time();
+	$gridId = 'grid${table.name}' . $pageid;	
+	$pagerId = 'grid-pager-${table.name}-' . $pageid;
+	$toolbarId = 'grid-toolbar-${table.name}-' . $pageid;	
+	
+	$tempquickSearchId = 'grid-tempqsearch-${table.name}-' . $pageid;
+	$quickSearchId = 'grid-qsearch-${table.name}-' . $pageid;
+	$quickSearchFormId = 'grid-qsearch-form-${table.name}-' . $pageid;
+	
+	$quickEditId = 'quick-edit-${table.name}-' . $pageid;	
+	
+?>
+
+<?php
+  if (file_exists('ajax/${table.name}Manager_BG.inc.php')) {
+    include 'ajax/${table.name}Manager_BG.inc.php';
+  }
+?>
+
+<div id="manager">
+    
+	<div id="<?php echo $toolbarId; ?>" class="jack-ui-wrapper">
+		<div class="jack-ui-toolbar">
+    		#set ($reloadGrid = true)
+			#parse('includes/manager/toolbar-std.php.inc.vm')
+		
+			<div class="jack-ui-toolbar-action">
+    			<div class="jack-ui-toolbar-option">
+    				<a href="excel/${table.name}/ALL/ALL?expanded=1" target="_new"><img src="images/smtb/excel.png" /></a>
+    			</div>
+     			<div class="jack-ui-toolbar-option">
+    				<a href="excel/${table.name}/ALL/ALL?expanded=1" target="_new"><?php echo WebContext::getLanguage()->get('excel'); ?></a>
+    			</div>
+     		</div>			
+			
+			#parse('includes/manager/search.php.inc.vm')
+			
+			<div style="clear: both;" />
+		</div>
+		
+		
+	</div>
+	
+	<div id="manager-grid">
+		<table id="<?php echo $gridId ?>"></table> 
+		<div id="<?php echo $pagerId ?>"></div> 
+    </div>
+</div>
+</div>
+
+
+<?php
+  if (file_exists('ajax/${table.name}Manager_AG.inc.php')) {
+    include 'ajax/${table.name}Manager_AG.inc.php';
+  }
+?>
+
+<script language="javascript">
+	var tbarLoaded = false;
+
+	<?php 
+		$grid = new ${table.name}JqGrid($gridId, $quickEditId, $toolbarId, $pagerId, $quickSearchFormId);
+		echo $grid->toString(); 
+	?>
+	
+	$(window).bind('resize', function() {
+        $("#<?php echo $gridId ?>").setGridWidth($(window).width()-30);
+				$("#<?php echo $gridId ?>").setGridHeight($(window).height()-300);
+    }).trigger('resize');
+
+</script>

@@ -1,0 +1,12 @@
+#* 
+ Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+*#
+#set($tfk = ${col.childForeignKey})
+#set($otype = ${tfk.masterTable.primaryKey.type.name})
+#set($btype = ${tfk.childTable.getColumn(${tfk.childColumnName}).type.name})
+#if(${col.childForeignKey}) new TableMemberForeignKey('${btype}', '${tfk.masterTable.name}', '${tfk.masterColumnName}', '${otype}') #else NULL #end

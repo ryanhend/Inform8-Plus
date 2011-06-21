@@ -1,0 +1,72 @@
+<?php 
+/* Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+ */
+?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<?php include 'default.header.php'; ?>
+
+
+<div id="content">
+    <ul id="tabHeader">
+        <li><a class="jack_tabs_menuTab" href="#tab-home"><?php echo WebContext::getLanguage()->get('homeTab'); ?></a></li>
+        #if(${config.getAllProperties().getProperty('calendar.on', 'true')} == true)<li><a href="#tab-cal"><?php echo WebContext::getLanguage()->get('calendarTab'); ?></a></li>#end
+    </ul>
+    <div id="tab-home">
+        <?php include 'config/authenticatedajax/home.php'; ?>
+    </div>
+    #if(${config.getAllProperties().getProperty('calendar.on', 'true')} == true)
+    <div id="tab-cal">
+        <?php include 'config/authenticatedajax/calendar.php'; ?>
+    </div>
+    #end
+</div>
+
+
+<div id="jack-quick-edit-dialog"></div>
+<div id="jack-new-dialog"></div>
+<div id="jack-img-dialog"></div>
+
+<?php include 'default.footer.php'; ?>
+
+
+<script type="text/javascript">
+    $(function() {
+        $tabs = $("#content").tabs({
+            cache: true,
+            closable: true,
+            add: function(event, ui) {
+                ${ds}tabs.tabs('select', '#' + ui.panel.id);
+      },
+      show: function(event, ui) {
+        $(ui.panel).find('.calendar').fullCalendar('render');
+      }
+        });
+        $('#content > #tabHeader').removeClass('ui-corner-all');        
+    });
+
+  window.I8.td = new Object();
+  #foreach( $table in $tables )
+    window.I8.td.${table.name} = ${ds}.parseJSON('<?php $def = new ${table.name}Definition(); echo $def->toJson(); ?>');
+	<?php 
+		$builder = new ColumnRenderSettingsJsonBuilder(); 
+		$objs = ColumnRenderSettingsIQL::select()
+			->join(ColumnRenderSettingsIQL::$TABLERENDERSETTINGSID, TableRenderSettingsIQL::$_TABLE, TableRenderSettingsIQL::$TABLERENDERSETTINGSID)
+			->where(TableRenderSettingsIQL::$_TABLE, TableRenderSettingsIQL::$TABLENAME, '=', '${table.name}')
+			->get();
+	?>
+	window.I8.td.${table.name}.rendersettings = ${ds}.parseJSON('<?php echo $builder->toJson($objs); ?>');
+  #end
+  
+  //quick edit dialog
+  $('#jack-quick-edit-dialog').dialog({width:650, minWidth:300, title:"Quick Edit", modal:true, autoOpen: false });
+  
+  // New Record Dialog
+  $('#jack-new-dialog').dialog({width:650, minWidth:300, title:"New", modal:true, autoOpen: false });
+  
+  // Image Preview Dialog
+  $('#jack-img-dialog').dialog({width:650, minWidth:300, title:"Image Preview", modal: true, autoOpen: false });  
+</script>

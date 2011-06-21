@@ -1,0 +1,396 @@
+<?php 
+/* Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+ */
+?><?php 
+/*  
+  This class contains the Main 'CRUD' operations.
+  
+  Class: ${table.name}Crud
+  Responsibility: Processes CRUD operations per for ${table.name} table.
+  Collaborations: DAO and Views for results rendering. 
+  
+  Each operation should return a RequestResult object
+*/
+
+class ${table.name}Crud { 
+
+  var $jacklang;
+  var $dao;
+
+  function __construct() {
+     $this->jacklang = WebContext::getLanguage();
+     $this->dao = new ${table.name}Dao();
+  }
+
+#if (!${table.settings.hasLabel('DB_READ_ONLY')})
+  function create() {
+    Inform8Context::getLogger()->log(BaseLogger::$DEBUG, "creating new ${table.name}");
+
+    #if($table.columnsWithLabel('FILE').size() > 0)
+      $storageSettingsDao = new StorageDao();
+      $allSettings = $storageSettingsDao->getAll();
+      $settings = $allSettings[0];
+      $storageFolder = $settings->getStorageFolder();
+    #end
+    
+    $tempobj = new ${table.name}();
+    $loader = new ${table.name}HttpBuilder();
+    $loader->loadFromHttpRequest($tempobj);
+    $tempobj = $this->dao->create($tempobj);
+    Inform8Context::getLogger()->log(BaseLogger::$DEBUG, "created ${table.name}");
+    
+    #foreach( $col in ${table.columns} )
+        #if($col.settings.hasLabel('FILE'))
+          if (isset($_FILES['${col.name}']) 
+            && $_FILES['${col.name}']['name'] != null
+            && $_FILES['${col.name}']['name'] != '') {
+            
+            $finalStorageFolder = $storageFolder . '/${table.name}/' . $tempobj->getPk();
+          
+            // create the directory for the table and primary key if none exists
+            mkdir($finalStorageFolder, 0755, true);
+            
+            move_uploaded_file($_FILES['${col.name}']['tmp_name'], $finalStorageFolder . '/' . $_FILES['${col.name}']['name'] );
+            $tempobj->set${col.name}('${table.name}/' . $tempobj->getPk() . '/' . $_FILES['${col.name}']['name']);
+          }
+        #end    
+    #end
+    
+    $tempobj = $this->dao->save($tempobj);
+    
+    $res = RequestResult::newFromDbObject($tempobj);
+    $opRes = OperationResult::fromRequestResult($res);
+    
+    if ($res->isPassed()) {
+        $res->displayMessage = $this->jacklang->get('Tbl_${table.name}__created') . 
+          Tabs::viewInNewTab('Update', 
+            '${table.name}', 
+            $tempobj->get${table.primaryKey.name}(), 
+            $this->jacklang->get('viewInNewTab'),
+            $this->jacklang->get('${table.name}') . ' ' . $tempobj->get${table.primaryKey.name}());
+        $opRes->id=$tempobj->get${table.primaryKey.name}();
+        $opRes->displayContent='';
+      }else {
+        $opRes->displayMessage = $this->jacklang->get('Tbl_${table.name}__createFailed');
+      } 
+    
+    $res->addOperationResult($opRes);
+    return $res;
+  }
+
+
+  /**
+   * Updates the sent fields... 
+   */
+  function quickEditupdate() {
+    #if($table.columnsWithLabel('FILE').size() > 0)
+      $storageSettingsDao = new StorageDao();
+      $allSettings = $storageSettingsDao->getAll();
+      $settings = $allSettings[0];
+      $storageFolder = $settings->getStorageFolder();
+    #end  
+
+    $tempobj = $this->dao->get(Request::getSafePost('id'));
+    #foreach( $col in $table.columns )
+      // test member is sent from quick edit
+      if (array_key_exists("$col.name", $_POST)) {
+        #if($col.settings.hasLabel('PASSWORD'))
+          if($_POST["$col.name"] != NULL) {
+            $tempobj->set${col.name}(md5($_POST["$col.name"]));
+          }
+        #else
+          $tempobj->set${col.name}(Request::getSafePost("$col.name"));
+        #end  
+      }
+      #if($col.settings.hasLabel('FILE'))
+      elseif (isset($_FILES['${col.name}']) 
+            && $_FILES['${col.name}']['name'] != null
+            && $_FILES['${col.name}']['name'] != '') {
+            
+            $finalStorageFolder = $storageFolder . '/${table.name}/' . $tempobj->getPk();
+          
+            // create the directory for the table and primary key if none exists
+            mkdir($finalStorageFolder, 0755, true);
+            
+            move_uploaded_file($_FILES['${col.name}']['tmp_name'], $finalStorageFolder . '/' . $_FILES['${col.name}']['name'] );
+            $tempobj->set${col.name}('${table.name}/' . $tempobj->getPk() . '/' . $_FILES['${col.name}']['name']);
+      }
+      #end
+    #end
+    $obj = $this->dao->save($tempobj);
+    
+    $res = RequestResult::newFromDbObject($obj);
+    $opRes = OperationResult::fromRequestResult($res);
+    $opRes->id = Request::getSafePost("id");
+
+    if ($res->isPassed()) {
+      $res->displayMessage = $this->jacklang->get('Tbl_${table.name}__saved');
+      
+      $builder = new ${table.name}JqGridBuilder();
+      $opRes->displayContent = $builder->toJqGridArray($obj);
+    }else {
+      $res->displayMessage = $this->jacklang->get('Tbl_${table.name}__saveFailed');
+    }
+    
+    $res->addOperationResult($opRes); 
+    return $res;  
+  }
+  
+  function update() {
+    #if($table.columnsWithLabel('FILE').size() > 0)
+      $storageSettingsDao = new StorageDao();
+      $allSettings = $storageSettingsDao->getAll();
+      $settings = $allSettings[0];
+      $storageFolder = $settings->getStorageFolder();
+    #end  
+      
+    $tempobj = $this->dao->get(Request::getSafePost('id'));
+    #foreach( $col in $table.columns )
+        #if($col.settings.hasLabel('PASSWORD'))
+          if($_POST["$col.name"] != NULL) {
+            $tempobj->set${col.name}(md5($_POST["$col.name"]));
+          }
+        #elseif($col.settings.hasLabel('FILE'))
+          if (isset($_FILES['${col.name}']) 
+            && $_FILES['${col.name}']['name'] != null
+            && $_FILES['${col.name}']['name'] != '') {
+            
+            $finalStorageFolder = $storageFolder . '/${table.name}/' . $tempobj->getPk();
+          
+            // create the directory for the table and primary key if none exists
+            mkdir($finalStorageFolder, 0755, true);
+            
+            move_uploaded_file($_FILES['${col.name}']['tmp_name'], $finalStorageFolder . '/' . $_FILES['${col.name}']['name'] );
+            $tempobj->set${col.name}('${table.name}/' . $tempobj->getPk() . '/' . $_FILES['${col.name}']['name']);
+          }
+        #else
+          $tempobj->set${col.name}(Request::getSafePost("$col.name"));
+        #end    
+    #end
+    $obj = $this->dao->save($tempobj);
+
+    $res = RequestResult::newFromDbObject($obj);
+    $opRes = OperationResult::fromRequestResult($res);
+    $opRes->id = Request::getSafePost("id");
+
+    if ($res->isPassed()) {  
+        $res->displayMessage = $this->jacklang->get('Tbl_${table.name}__saved');
+        $builder = new ${table.name}JsonBuilder();
+        $contents = $builder->toExpandedJson($obj);
+        $opRes->displayContent = $contents;
+      }else {
+        $res->displayMessage = $this->jacklang->get('Tbl_${table.name}__saveFailed');
+      }
+    
+    $res->addOperationResult($opRes); 
+    return $res;
+  }
+  
+  
+  function delete() {
+    $tempobj = $this->dao->delete(Request::getSafePost("id"));
+    
+    $res = new RequestResult();
+    $opRes = new OperationResult();
+
+    $opRes->id = Request::getSafePost("id");
+    if ($tempobj == 1) {
+      $res->setPassed();
+      $opRes->setPassed();
+      $opRes->displayMessage = $this->jacklang->get('Tbl_${table.name}__deleted');
+    }else{
+      $res->setFailed();
+      $opRes->setFailed();
+      $opRes->displayMessage = $this->jacklang->get('Tbl_${table.name}__deleteFailed');
+    }
+    $res->addOperationResult($opRes);
+    
+    return $res;
+  }
+  
+  function deleteMultiple() {
+    $ids = explode(",", Request::getSafePost("ids"));
+    $count = count($ids);
+    
+    $res = new RequestResult();
+
+    $totalPassed = 0;
+    $totalFailed = 0;
+    
+    for ($i = 0; $i < $count; $i++) {
+      $tempobj = $this->dao->delete($ids[$i]);
+        
+      $opRes = new OperationResult();
+      $opRes->id=$ids[$i];
+      if ($tempobj == 1) {
+        $totalPassed += 1;
+        $opRes->setPassed();
+        $opRes->displayMessage = $this->jacklang->get('Tbl_${table.name}__deleted');
+      }else {
+        $totalFailed +=1;
+        $opRes->setFailed();
+        $opRes->displayMessage = $this->jacklang->get('Tbl_${table.name}__deleteFailed');
+      }
+      $res->addOperationresult($opRes);
+      
+      //set composite result
+      if ($totalFailed > 0 && $totalPassed > 0) {
+        $res->displayMessage = $this->jacklang->get('Tbl_${table.name}__multipleDeletePartial');
+        $res->setPartialFailure();
+      }else if ($totalFailed == 0) {
+        $res->displayMessage = $this->jacklang->get('Tbl_${table.name}__multipleDeleted');
+        $res->setPassed();
+      }else {
+        $res->displayMessage = $this->jacklang->get('Tbl_${table.name}__multipleDeleteFailed');
+        $res->setFailed();
+      }
+      }
+    return $res;  
+  } 
+  
+  
+  /**
+   *  Enables/Disables a series of items. PK Ids set by the post variable 'ids'.
+   */
+  function enableMultiple() {
+      $ids = explode(",", Request::getSafePost("ids"));
+      $count = count($ids);
+      $enable = $_POST["enable"] == 'true'; 
+    
+    $totalPassed = 0;
+    $totalFailed = 0;
+    
+    $res = new RequestResult();
+    $gridBuilder = new ${table.name}JqGridBuilder();
+      for ($i = 0; $i < $count; $i++) {
+        $tempobj = $this->dao->get($ids[$i]);
+        if($enable) {
+          $tempobj->setEnabled("1");
+        }else{
+          $tempobj->setEnabled("0");
+        }
+        $tempobj = $this->dao->save($tempobj);
+        
+      $opRes = new OperationResult();
+      $opRes->id=$ids[$i];
+      if (is_null($tempobj) || (!is_object($tempobj) && $tempobj == -1)) {
+          $totalFailed +=1;
+        $opRes->setFailed();
+        }else {
+        $totalPassed += 1;
+        $opRes->setPassed();
+        $opRes->displayContent = $gridBuilder->buildCellValue('${table.name}', 'Enabled', $tempobj->getEnabled());
+        }
+      $res->addOperationresult($opRes);
+    }
+    
+    
+    //set composite result
+    if ($totalFailed > 0 && $totalPassed > 0) {
+      if($enable) {
+        $res->displayMessage = $this->jacklang->get('Tbl_${table.name}__enablePartial');
+      }else{
+        $res->displayMessage = $this->jacklang->get('Tbl_${table.name}__disablePartial');
+      }
+      $res->setPartialFailure();
+    }else if ($totalFailed == 0) {
+      if($enable) {
+        $res->displayMessage = $this->jacklang->get('Tbl_${table.name}__enabled');
+      }else{
+        $res->displayMessage = $this->jacklang->get('Tbl_${table.name}__disabled');
+      }   
+      $res->setPassed();
+    }else {
+      if($enable) {
+        $res->displayMessage = $this->jacklang->get('Tbl_${table.name}__enableFailed');
+      }else{
+        $res->displayMessage = $this->jacklang->get('Tbl_${table.name}__disableFailed');
+      }
+      $res->setFailed();
+    }
+
+    return $res;
+  }
+  
+  #if($table.orderingMember)
+  /**
+   * Function to order the elements
+   */
+  function order() {
+      
+    $orderList = $_POST["orderList"];
+    $cnt = count($orderList);
+    
+    $totalPassed = 0;
+    $totalFailed = 0;
+
+    $res = new RequestResult();
+
+    for ($i = 0; $i < $cnt; $i++) {
+      $opRes = new OperationResult();
+      $opRes->id=$orderList[$i];
+      
+        $obj = $this->dao->get($orderList[$i]);
+        $obj->set${table.orderingMember.name}($i+1);
+        $saveRes = $this->dao->save($obj);
+        
+      if (is_null($saveRes) || (!is_object($saveRes) && $saveRes == -1)) {
+        $totalFailed +=1;
+        $opRes->setFailed();
+      }else {
+        $totalPassed += 1;
+        $opRes->setPassed();
+      }         
+      $res->addOperationresult($opRes);
+      }
+    
+    //set composite result
+    if ($totalFailed > 0 && $totalPassed > 0) {
+      $res->displayMessage = $this->jacklang->get('Tbl_${table.name}__orderPartial');
+      $res->setPartialFailure();
+    }else if ($totalFailed == 0) {
+      $res->displayMessage = $this->jacklang->get('Tbl_${table.name}__ordered');
+      $res->setPassed();
+    }else {
+      $res->displayMessage = $this->jacklang->get('Tbl_${table.name}__orderFailed');
+      $res->setFailed();
+    }
+      
+      return $res;
+  }
+  #end
+
+## End - if not read only.
+#end
+  
+  #if($table.primaryKey.detailForeignKeys.size() > 0)
+    #foreach( $fk in $table.primaryKey.uniqueDetailForeignKeyList())
+      #if ($fk.childTable.settings.hasLabel('JOIN_TABLE'))
+          #if($fk.otherConnectingTableField().settings.hasLabel('embeddedjoin') 
+            || $fk.otherConnectingTableField().settings.hasLabel('embeddedlinkorjoin'))
+            #if (!${fk.otherConnectingTable().settings.hasLabel('DB_READ_ONLY')} && !${fk.childTable.settings.hasLabel('DB_READ_ONLY')})
+              
+              ## Method to create new record in other table and link via join table
+              #parse('config/ajax/includes//embeddedjoin-create.php.inc.vm')
+             
+              ## Method to link existing data in the other table, and delete the links
+              #if($fk.otherConnectingTableField().settings.hasLabel('embeddedlinkorjoin'))
+                #parse('config/ajax/includes/embeddedjoin-link.php.inc.vm')
+                #parse('config/ajax/includes/embeddedjoin-delete-link.php.inc.vm')
+              #end        ## Create and delete links
+                
+            #end          ## Not Read only on linked tables
+          #end            ## link or join table for FK
+      #else
+        #if (!${fk.childTable.settings.hasLabel('DB_READ_ONLY')})
+          #parse('config/ajax/includes//embeddedother.php.inc.vm')
+        #end
+      #end
+    #end        ## End of for each FK        
+  #end          ## End has FK's
+}

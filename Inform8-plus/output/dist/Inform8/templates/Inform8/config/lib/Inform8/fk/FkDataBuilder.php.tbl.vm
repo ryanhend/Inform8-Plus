@@ -1,0 +1,18 @@
+<?php 
+/* Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+ */
+?><?php 
+class ${table.name}FkDataBuilder { 
+
+  function toFkData($obj) {
+	#if(${table.settings.hasProperty('fkMember')}) #set($cname = ${table.settings.getProperty('fkMember', '')}) #set($col = ${table.getColumn($cname)}) #else #set($col = ${table.primaryKey}) #end  
+    return $obj->get${col.name}();
+  }
+
+}    
+?>

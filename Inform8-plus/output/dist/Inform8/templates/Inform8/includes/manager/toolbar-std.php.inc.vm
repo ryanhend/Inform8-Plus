@@ -1,0 +1,86 @@
+#* 
+ Copyright 2011 - 88 Creative Pty Ltd. 
+ * Copyright of this program is the property of 88 Creative, 
+ * without whose written permission reproduction in
+ * whole or in part is prohibited. All rights reserved.
+ * http://www.inform8.com
+ * http://www.88creative.com.au
+*#
+#if(!${table.settings.hasLabel('UI_READ_ONLY')} && !${table.settings.hasLabel('DB_READ_ONLY')})
+
+	#if(!$hideNew)
+	<div class="jack-ui-toolbar-action">
+		<div class="jack-ui-toolbar-option">
+				<a href="" onclick="javascript:displayNewDialog(window.I8.td['${table.name}'],'<?php echo $gridId ?>'); return false;"><img src="images/smtb/new.png" /></a>
+		</div>
+		<div class="jack-ui-toolbar-option">
+			<a href="" onclick="javascript:displayNewDialog(window.I8.td['${table.name}'],'<?php echo $gridId ?>'); return false;"><?php echo WebContext::getLanguage()->get('new'); ?></a>
+		</div>
+	</div>
+	#end
+	
+	
+	#if(${table.enabledMember} && !$hideEnabled && !$new)
+	<div class="jack-ui-toolbar-action">
+		<div class="jack-ui-toolbar-option">
+			<a href="" onclick="javascript:enableSelected('${table.name}', false, '<?php echo $gridId ?>', '${table.enabledMember.name}'); return false;"><img src="images/smtb/cross.png" /></a>
+		</div>
+		<div class="jack-ui-toolbar-option">
+			<a href="" onclick="javascript:enableSelected('${table.name}', false, '<?php echo $gridId ?>', '${table.enabledMember.name}'); return false;"><?php echo WebContext::getLanguage()->get('disable'); ?></a>
+		</div>
+	</div>
+	
+	<div class="jack-ui-toolbar-action">
+		<div class="jack-ui-toolbar-option">
+			<a href="" onclick="javascript:enableSelected('${table.name}', true, '<?php echo $gridId ?>', '${table.enabledMember.name}'); return false;"><img src="images/smtb/tick.png" /></a>
+		</div>
+		<div class="jack-ui-toolbar-option">
+			<a href="" onclick="javascript:enableSelected('${table.name}', true, '<?php echo $gridId ?>', '${table.enabledMember.name}'); return false;"><?php echo WebContext::getLanguage()->get('enable'); ?></a>
+		</div>
+	</div>
+	#end		
+
+	
+	#if(${table.orderingMember} && !$hideSort)
+	<div class="jack-ui-toolbar-action">
+		<div class="jack-ui-toolbar-option">
+			<a href="" onclick="javascript:newTab('ajax.php?action=Order&object=${table.name}', 'Order <?php echo WebContext::getLanguage()->get('Tbl_${table.name}'); ?>'); return false;" ><img src="images/smtb/cards.png" /></a>
+		</div>
+		<div class="jack-ui-toolbar-option">
+			<a href="" onclick="javascript:newTab('ajax.php?action=Order&object=${table.name}', 'Order <?php echo WebContext::getLanguage()->get('Tbl_${table.name}'); ?>'); return false;" ><?php echo WebContext::getLanguage()->get('sort'); ?></a>
+		</div>
+	</div>
+	#end	
+	
+	
+	#if(!$new && !$hideDelete)
+	<div class="jack-ui-toolbar-action">
+		<div class="jack-ui-toolbar-option">
+			#if($deleteItem)
+				<a href="" onclick="javascript:deleteItem('${table.name}', '<?php echo $id; ?>'); return false;"><img src="images/smtb/delete_item.png" /></a>
+			#else
+				<a href="" onclick="javascript:deleteSelected('${table.name}', '<?php echo $gridId ?>'); return false;"><img src="images/smtb/delete_item.png" /></a>
+			#end
+		</div>
+		<div class="jack-ui-toolbar-option">
+			#if($deleteItem)
+				<a href="" onclick="javascript:deleteItem('${table.name}', '<?php echo $id; ?>'); return false;">Delete</a>
+			#else
+				<a href="" onclick="javascript:deleteSelected('${table.name}', '<?php echo $gridId ?>'); return false;"><?php echo WebContext::getLanguage()->get('delete'); ?></a>						
+			#end
+		</div>
+	</div>
+	#end	
+	
+#end
+
+	#if($reloadGrid)
+	<div class="jack-ui-toolbar-action">
+		<div class="jack-ui-toolbar-option">
+			<a href="" onclick="javascript:reloadGrid('<?php echo $gridId ?>'); resetForm('<?php echo $quickSearchFormId; ?>'); resetSearchFields('<?php echo $quickSearchFormId; ?>'); return false;"><img src="images/smtb/reload.png" /></a>
+		</div>
+		<div class="jack-ui-toolbar-option">
+			<a href="" onclick="javascript:reloadGrid('<?php echo $gridId ?>'); resetForm('<?php echo $quickSearchFormId; ?>'); resetSearchFields('<?php echo $quickSearchFormId; ?>'); return false;"><?php echo WebContext::getLanguage()->get('reload'); ?></a>			
+		</div>
+	</div>
+	#end
